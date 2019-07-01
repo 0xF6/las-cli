@@ -3,12 +3,12 @@
     using System.Collections;
     using System.Collections.Generic;
 
-    public class DataSectionParameter : IEnumerable<ParameterDataLine>
+    public class DataSectionParameter
     {
         public string Title { get; set; }
 
-        private readonly Dictionary<string, int> parametersMap = new Dictionary<string, int>();
-        private readonly List<ParameterDataLine> parameters = new List<ParameterDataLine>();
+        public Dictionary<string, int> parametersMap = new Dictionary<string, int>();
+        public List<ParameterDataLine> parameters = new List<ParameterDataLine>();
 
         /// <summary>
         /// Checks whether given mnemonic exists in the section. 
@@ -25,16 +25,13 @@
                 return parameters[index];
             }
         }
-        public ParameterDataLine this[string mnemonic] 
+        public ParameterDataLine this[string mnemonic]
             => !HasParameter(mnemonic) ? null : parameters[parametersMap[mnemonic]];
 
         public void Push(ParameterDataLine param)
         {
             parameters.Add(param);
-            parametersMap.Add(param.Mnemonic, parameters.Count-1);
+            parametersMap.Add(param.Mnemonic, parameters.Count - 1);
         }
-
-        public IEnumerator<ParameterDataLine> GetEnumerator() => parameters.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

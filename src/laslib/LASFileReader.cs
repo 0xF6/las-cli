@@ -8,7 +8,7 @@
 
     public class LASFileReader
     {
-        public static LASFile Open(FileInfo file)
+        public static LASFile Open(FileInfo file, bool readDataSector = true)
         {
             var lines = File.ReadAllLines(file.FullName);
             var sectors = new List<List<string>>();
@@ -16,19 +16,20 @@
             var i = 0;
             for (i = 0; i != lines.Length; i++)
             {
-                if (!lines[i].StartsWith("~")) 
+                if (!lines[i].StartsWith("~"))
                     continue;
-                if (last >= 0) 
-                    sectors.Add(lines.ToList().GetRange( last, i - last));
+                if (last >= 0)
+                    sectors.Add(lines.ToList().GetRange(last, i - last));
                 last = i;
             }
-            sectors.Add(lines.ToList().GetRange(last, i - last));
+            if (readDataSector)
+                sectors.Add(lines.ToList().GetRange(last, i - last));
             if (CheckVersion(sectors) != LASVersion.v2)
                 throw new InvalidOperationException("las file is corrupted.");
-            return open2_0(sectors);
+            return open2_0(sectors, readDataSector);
         }
 
-        private static LASFile open2_0(IReadOnlyList<List<string>> sections)
+        private static LASFile open2_0(IReadOnlyList<List<string>> sections, bool readDataSector)
         {
             var lasFile = new LASFile
             {
@@ -53,7 +54,7 @@
                     indexP = i;
                 else if (sectionTitle.StartsWith("~O"))
                     indexO = i;
-                else if (sectionTitle.StartsWith("~A")) 
+                else if (sectionTitle.StartsWith("~A") && readDataSector)
                     indexA = i;
             }
             if (indexV == -1)
@@ -64,19 +65,19 @@
                 throw new Exception("Missing section ~W");
             lasFile.wellSection = BuildParameterDataSection(sections[indexW]);
             // Other
-            lasFile.other_section = indexO != -1 ? 
-                BuildParameterDataSection(sections[indexO]) : 
+            lasFile.other_section = indexO != -1 ?
+                BuildParameterDataSection(sections[indexO]) :
                 new DataSectionParameter();
             // Curve
             if (indexC == -1)
                 throw new Exception("Missing section ~C");
             var curve = BuildParameterDataSection(sections[indexC]);
             // Parameters
-            var parameters = indexP != -1 ? 
-                BuildParameterDataSection(sections[indexP]) : 
+            var parameters = indexP != -1 ?
+                BuildParameterDataSection(sections[indexP]) :
                 new DataSectionParameter();
             // ASCII
-            if (indexA == -1)
+            if (indexA == -1 && readDataSector)
                 throw new Exception("Missing section ~A");
             lasFile.data.Add("Log", BuildData(curve, parameters, sections[indexA]));
             // identifying wrap mode
@@ -85,7 +86,7 @@
             switch (lasFile.versionSection["WRAP"].Value)
             {
                 case "YES": break;
-                case "NO" : break;
+                case "NO": break;
                 default:
                     throw new Exception("Invalid parameter value for WRAP.");
             }

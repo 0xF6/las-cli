@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AssemblyName>lascli</AssemblyName>
+    <RootNamespace>las.cli</RootNamespace>
+    <StartupObject>cli.Host</StartupObject>
+    <Version>0.0.0</Version>
+    <Authors>Yuuki Wesp</Authors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EmojiOne.NETStandard" Version="4.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="Pastel" Version="1.3.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\laslib\liblas4.csproj" />
+  </ItemGroup>
+
+</Project>

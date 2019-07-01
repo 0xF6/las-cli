@@ -1,10 +1,11 @@
 ﻿namespace liblas4
 {
+    using Newtonsoft.Json;
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
 
-    public class LogData : IEnumerable<string[]>
+    public class LogData
     {
         /// <summary>
         /// Column Definition (Curve)
@@ -15,15 +16,9 @@
         /// </summary>
         public DataSectionParameter logParameters = new DataSectionParameter();
 
+        [JsonIgnore]
         public List<string[]> logRecords = new List<string[]>();
 
-        public string[] Row(int index) => logRecords[index];
-
-        public ParameterDataLine Column(int index) => logDefinition[index];
-
-        public int ColumnLen() => logDefinition.Count();
-
-        public IEnumerator<string[]> GetEnumerator() => logRecords.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        public int ColumnLen() => logDefinition.parametersMap.Count;
     }
 }
